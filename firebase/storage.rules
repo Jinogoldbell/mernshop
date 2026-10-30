@@ -1,0 +1,15 @@
+// Firebase Console > Storage > Rules. Paste and publish.
+// Anyone can view product images; only store admins can upload.
+// The `admin` claim is added by the backend (GET /api/auth/firebase-token).
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /products/{file} {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.auth.token.admin == true
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+  }
+}
